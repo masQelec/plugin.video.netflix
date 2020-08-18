@@ -59,7 +59,6 @@ def play(videoid):
 @measure_exec_time_decorator()
 def _play(videoid, is_played_from_strm=False):
     """Play an episode or movie as specified by the path"""
-    is_upnext_enabled = G.ADDON.getSettingBool('UpNextNotifier_enabled')
     LOG.info('Playing {}{}{}',
              videoid,
              ' [STRM file]' if is_played_from_strm else '',
@@ -100,11 +99,8 @@ def _play(videoid, is_played_from_strm=False):
     event_data = {}
     videoid_next_episode = None
 
-    # Get Infolabels and Arts for the videoid to be played, and for the next video if it is an episode (for UpNext)
-    if is_played_from_strm or is_upnext_enabled or G.IS_ADDON_EXTERNAL_CALL:
-        if is_upnext_enabled and videoid.mediatype == common.VideoId.EPISODE:
-            # When UpNext is enabled, get the next episode to play
-            videoid_next_episode = _upnext_get_next_episode_videoid(videoid, metadata)
+    # Get Infolabels and Arts for the videoid to be played
+    if is_played_from_strm or G.IS_ADDON_EXTERNAL_CALL:
         info_data = infolabels.get_info_from_netflix(
             [videoid, videoid_next_episode] if videoid_next_episode else [videoid])
         info, arts = info_data[videoid.value]
@@ -261,38 +257,6 @@ def _get_event_data(videoid):
     else:
         event_data['track_id'] = videoid_data['trackIds']['trackId_jaw']
     return event_data
-
-
-def _upnext_get_next_episode_videoid(videoid, metadata):
-    """Determine the next episode and get the videoid"""
-    try:
-        videoid_next_episode = _find_next_episode(videoid, metadata)
-        LOG.debug('Next episode is {}', videoid_next_episode)
-        return videoid_next_episode
-    except (TypeError, KeyError):
-        # import traceback
-        # LOG.debug(G.py2_decode(traceback.format_exc(), 'latin-1'))
-        LOG.debug('There is no next episode, not setting up Up Next')
-        return None
-
-
-def _find_next_episode(videoid, metadata):
-    try:
-        # Find next episode in current season
-        episode = common.find(metadata[0]['seq'] + 1, 'seq',
-                              metadata[1]['episodes'])
-        return common.VideoId(tvshowid=videoid.tvshowid,
-                              seasonid=videoid.seasonid,
-                              episodeid=episode['id'])
-    except (IndexError, KeyError):
-        # Find first episode of next season
-        next_season = common.find(metadata[1]['seq'] + 1, 'seq',
-                                  metadata[2]['seasons'])
-        episode = common.find(1, 'seq', next_season['episodes'])
-        return common.VideoId(tvshowid=videoid.tvshowid,
-                              seasonid=next_season['id'],
-                              episodeid=episode['id'])
-
 
 def _raspberry_disable_omxplayer():
     """Check and disable OMXPlayer (not compatible with Netflix video streams)"""
