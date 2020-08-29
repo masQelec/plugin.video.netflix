@@ -210,19 +210,19 @@ msgstr "Biblioteca"
 
 msgctxt "#30051"
 msgid "Profile set for playback from the library"
-msgstr ""
+msgstr "Perfil configurado para reproducción desde la biblioteca"
 
 msgctxt "#30052"
 msgid "Set for library playback"
-msgstr ""
+msgstr "Establecer para reproducción en la biblioteca"
 
 msgctxt "#30053"
 msgid "Remove for playback from library"
-msgstr ""
+msgstr "Eliminar para reproducir en la biblioteca"
 
 msgctxt "#30054"
 msgid "Profile set to auto-selection"
-msgstr ""
+msgstr "Perfil configurado para selección automática"
 
 msgctxt "#30055"
 msgid "Set for auto-selection"
@@ -976,7 +976,7 @@ msgstr "Hay {} títulos que no se pueden importar.[CR]¿Desea eliminar estos arc
 
 msgctxt "#30247"
 msgid "Results per page (in case of timeout error decrease it)"
-msgstr ""
+msgstr "Resultados por página (en caso de error de tiempo de espera, disminuirlo)"
 
 # Unused 30248 to 30299
 
@@ -986,13 +986,13 @@ msgstr "¿Desea eliminar el estado visto de '{}'?[CR][CR]La operación puede tar
 
 msgctxt "#30301"
 msgid "Include Kodi library (only sending data)"
-msgstr ""
+msgstr "Incluir biblioteca Kodi (solo envío de datos)"
 
 # Unused 30302 to 30398
 
 msgctxt "#30399"
 msgid "Sort history by"
-msgstr ""
+msgstr "Ordenar historial por"
 
 msgctxt "#30400"
 msgid "Search"
@@ -1042,4 +1042,4 @@ msgstr "Por idioma de subtítulos"
 
 msgctxt "#30413"
 msgid "By genre/subgenre ID"
-msgstr ""
+msgstr "Por ID de género/subgénero"
