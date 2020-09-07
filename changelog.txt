@@ -44,7 +44,6 @@ v1.7.0 (2020-07-28)
   -Widgets/Favourites managed without profile selection
   -New Import existing library feature
   -Play From Here context menu is fixed
-  -Reintroduced UpNext fast video playback feature
   -Very long list of improvements/fixes full list on GitHub PR-756, PR-761
 -Managed error to account not reactivacted
 -New Chinese (simple) language translation

@@ -41,9 +41,6 @@ def run_addon_configuration(show_end_msg=False):
     # in the future it may be useful for other platforms or it may be removed
     G.ADDON.setSettingBool('enable_force_hdcp', False)
 
-    # Enable UpNext if it is installed and enabled
-    G.ADDON.setSettingBool('UpNextNotifier_enabled', getCondVisibility('System.AddonIsEnabled(service.upnext)'))
-
     G.settings_monitor_suspend(False)
     if show_end_msg:
         show_ok_dialog(get_local_string(30154), get_local_string(30157))

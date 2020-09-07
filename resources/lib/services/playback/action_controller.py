@@ -21,7 +21,6 @@ from .action_manager import ActionManager
 from .am_playback import AMPlayback
 from .am_section_skipping import AMSectionSkipper
 from .am_stream_continuity import AMStreamContinuity
-from .am_upnext_notifier import AMUpNextNotifier
 from .am_video_events import AMVideoEvents
 
 
@@ -66,7 +65,6 @@ class ActionController(xbmc.Monitor):
             AMSectionSkipper(),
             AMStreamContinuity(),
             AMVideoEvents(),
-            AMUpNextNotifier()
         ]
         self._notify_all(ActionManager.call_initialize, self._init_data)
         self.tracking = True

@@ -35,7 +35,6 @@ class Signals(object):  # pylint: disable=no-init
     ESN_CHANGED = 'esn_changed'
     RELEASE_LICENSE = 'release_license'
     REQUEST_KODI_LIBRARY_UPDATE = 'request_kodi_library_update'
-    UPNEXT_ADDON_INIT = 'upnext_data'
     QUEUE_VIDEO_EVENT = 'queue_video_event'
     CLEAR_USER_ID_TOKENS = 'clean_user_id_tokens'
     REINITIALIZE_MSL_HANDLER = 'reinitialize_msl_handler'
