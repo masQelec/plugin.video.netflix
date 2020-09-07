@@ -214,11 +214,11 @@ msgstr "Perfil configurado para reproducción desde la biblioteca"
 
 msgctxt "#30052"
 msgid "Set for library playback"
-msgstr "Establecer para reproducción en la biblioteca"
+msgstr "Establecer para reproducción de biblioteca"
 
 msgctxt "#30053"
 msgid "Remove for playback from library"
-msgstr "Eliminar para reproducir en la biblioteca"
+msgstr "Eliminar para reproducir de la biblioteca"
 
 msgctxt "#30054"
 msgid "Profile set to auto-selection"
@@ -976,7 +976,7 @@ msgstr "Hay {} títulos que no se pueden importar.[CR]¿Desea eliminar estos arc
 
 msgctxt "#30247"
 msgid "Results per page (in case of timeout error decrease it)"
-msgstr ""
+msgstr "Resultados por página (en caso de error de tiempo de espera, disminuir)"
 
 # Unused 30248 to 30299
 
@@ -986,7 +986,7 @@ msgstr "¿Desea eliminar el estado visto de '{}'?[CR][CR]La operación puede tar
 
 msgctxt "#30301"
 msgid "Include Kodi library (only sending data)"
-msgstr ""
+msgstr "Incluir biblioteca Kodi (solo enviando datos)"
 
 # Unused 30302 to 30339
 

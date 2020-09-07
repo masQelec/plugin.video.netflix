@@ -109,6 +109,9 @@
     <setting label="30049" type="lsep"/><!--Library-->
     <setting id="ResumeManager_enabled" type="bool" label="30176" default="true"/>
     <setting id="ResumeManager_dialog" type="bool" label="30177" default="true" visible="eq(-1,true)" subsetting="true"/>
+    <setting id="upnext_install" type="action" label="30234" action="InstallAddon(service.upnext)" visible="false" option="close"/>
+    <setting id="UpNextNotifier_enabled" type="bool" label="30129" default="false" visible="false"/>
+    <setting id="upnext_settings" type="action" label="30178" action="Addon.OpenSettings(service.upnext)" visible="false" option="close"/>
   </category>
   <category label="30023"><!--Expert-->
     <setting id="configuration_wizard" type="action" label="30158" action="RunPlugin(plugin://$ID/action/configuration_wizard/)" option="close"/>
