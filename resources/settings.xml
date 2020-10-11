@@ -10,7 +10,7 @@
     <setting id="select_first_unwatched" type="bool" label="30243" default="false" visible="eq(-2,true)" subsetting="true"/>
     <setting id="mylist_titles_color" type="enum" label="30215" lvalues="13106|762|13343|13341|761|760|731|767" default="1"/>
     <setting id="supplemental_info_color" type="enum" label="30239" lvalues="13106|762|13343|13341|761|760|731|767" default="3"/>
-    <setting id="disable_startup_notification" type="bool" label="30141" default="false"/>
+    <setting id="disable_startup_notification" type="bool" label="30141" default="true"/>
   </category>
   <category label="30025"><!--Library-->
     <setting label="30065" type="lsep"/><!--Auto-Update-->
