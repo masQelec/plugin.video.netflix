@@ -25,7 +25,6 @@ class AMVideoEvents(ActionManager):
     def __init__(self):
         super(AMVideoEvents, self).__init__()
         self.event_data = {}
-        self.videoid = None
         self.is_event_start_sent = False
         self.last_tick_count = 0
         self.tick_elapsed = 0
@@ -42,14 +41,12 @@ class AMVideoEvents(ActionManager):
             self.enabled = False
             return
         self.event_data = data['event_data']
-        self.videoid = common.VideoId.from_dict(data['videoid'])
 
     def on_playback_started(self, player_state):
         # Clear continue watching list data on the cache, to force loading of new data
         # but only when the videoid not exists in the continue watching list
-        current_videoid = self.videoid.derive_parent(common.VideoId.SHOW)
         videoid_exists, list_id = common.make_http_call('get_continuewatching_videoid_exists',
-                                                        {'video_id': str(current_videoid.value)})
+                                                        {'video_id': str(self.videoid_parent.value)})
         if not videoid_exists:
             # Delete the cache of continueWatching list
             G.CACHE.delete(CACHE_COMMON, list_id, including_suffixes=True)
@@ -115,6 +112,8 @@ class AMVideoEvents(ActionManager):
         self._reset_tick_count()
         self._send_event(EVENT_ENGAGE, self.event_data, player_state)
         self._send_event(EVENT_STOP, self.event_data, player_state)
+        # Update the resume here may not always work due to race conditions with refresh list/stop event
+        self._save_resume_time(player_state['elapsed_seconds'])
 
     def _save_resume_time(self, resume_time):
         """Save resume time value in order to update the infolabel cache"""
