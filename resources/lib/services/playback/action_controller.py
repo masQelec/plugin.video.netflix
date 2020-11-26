@@ -87,7 +87,7 @@ class ActionController(xbmc.Monitor):
             if method == 'Player.OnAVStart':
                 self._on_playback_started()
             elif method == 'Player.OnSeek':
-                self._on_playback_seek(json.loads(data)['player']['seekoffset'])
+                self._on_playback_seek(json.loads(data)['player']['time'])
             elif method == 'Player.OnPause':
                 self._is_pause_called = True
                 self._on_playback_pause()
@@ -104,11 +104,11 @@ class ActionController(xbmc.Monitor):
                 self._is_pause_called = False
                 self._on_playback_resume()
             elif method == 'Player.OnStop':
-                # When an error occurs before the video can be played,
-                # Kodi send a Stop event and here the active_player_id is None, then ignore this event
                 if self.active_player_id is None:
+                    # if playback does not start due to an error in streams initialization
+                    # OnAVStart notification will not be called, then active_player_id will be None
                     LOG.debug('ActionController: Player.OnStop event has been ignored')
-                    LOG.warn('ActionController: Possible problem with video playback, action managers disabled.')
+                    LOG.warn('ActionController: Action managers disabled due to a playback initialization error')
                     self.tracking = False
                     self.action_managers = None
                     return
@@ -171,7 +171,7 @@ class ActionController(xbmc.Monitor):
     def _get_player_state(self, player_id=None, time_override=None):
         try:
             player_state = common.json_rpc('Player.GetProperties', {
-                'playerid': self.active_player_id or player_id,
+                'playerid': self.active_player_id if player_id is None else player_id,
                 'properties': [
                     'audiostreams',
                     'currentaudiostream',

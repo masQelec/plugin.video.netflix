@@ -28,6 +28,7 @@ def generate_android_esn():
     if get_system_platform() == 'android':
         import subprocess
         try:
+            sdk_version = int(subprocess.check_output(['/system/bin/getprop', 'ro.build.version.sdk']))
             manufacturer = subprocess.check_output(
                 ['/system/bin/getprop',
                  'ro.product.manufacturer']).decode('utf-8').strip(' \t\n\r').upper()
@@ -36,19 +37,11 @@ def generate_android_esn():
                     ['/system/bin/getprop',
                      'ro.product.model']).decode('utf-8').strip(' \t\n\r').upper()
 
-                # This product_characteristics check seem no longer used, some L1 devices not have the 'tv' value
-                # like Xiaomi Mi Box 3 or SM-T590 devices and is cause of wrong esn generation
-                # product_characteristics = subprocess.check_output(
-                #     ['/system/bin/getprop',
-                #      'ro.build.characteristics']).decode('utf-8').strip(' \t\n\r')
-                # Property ro.build.characteristics may also contain more then one value
-                # has_product_characteristics_tv = any(
-                #     value.strip(' ') == 'tv' for value in product_characteristics.split(','))
-
                 # Netflix Ready Device Platform (NRDP)
                 nrdp_modelgroup = subprocess.check_output(
                     ['/system/bin/getprop',
-                     'ro.nrdp.modelgroup']).decode('utf-8').strip(' \t\n\r').upper()
+                     'ro.vendor.nrdp.modelgroup' if sdk_version >= 28 else 'ro.nrdp.modelgroup']
+                ).decode('utf-8').strip(' \t\n\r').upper()
 
                 drm_security_level = G.LOCAL_DB.get_value('drm_security_level', '', table=TABLE_SESSION)
                 system_id = G.LOCAL_DB.get_value('drm_system_id', table=TABLE_SESSION)
@@ -86,8 +79,6 @@ def generate_android_esn():
                 #   DEV_TYPE_TABLET         "PRV-T"
                 #   DEV_TYPE_PHONE          "PRV-P"
 
-                # if has_product_characteristics_tv and \
-                #         G.LOCAL_DB.get_value('drm_security_level', '', table=TABLE_SESSION) == 'L1':
                 if drm_security_level == 'L1':
                     esn = 'NFANDROID2-PRV-'
                     if nrdp_modelgroup:
