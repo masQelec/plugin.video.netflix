@@ -7,8 +7,6 @@
     SPDX-License-Identifier: MIT
     See LICENSES/MIT.md for more information.
 """
-from __future__ import absolute_import, division, unicode_literals
-
 import resources.lib.common as common
 from resources.lib.globals import G
 
@@ -87,5 +85,8 @@ CONTEXT_MENU_ACTIONS = {
         'url': ctx_item_url(['library_playback_set_profile'])},
     'library_playback_remove_profile': {
         'label': common.get_local_string(30053),
-        'url': ctx_item_url(['library_playback_remove_profile'])}
+        'url': ctx_item_url(['library_playback_remove_profile'])},
+    'profile_parental_control': {
+        'label': common.get_local_string(30062),
+        'url': ctx_item_url(['parental_control'])}
 }

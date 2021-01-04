@@ -7,8 +7,6 @@
     SPDX-License-Identifier: MIT
     See LICENSES/MIT.md for more information.
 """
-from __future__ import absolute_import, division, unicode_literals
-
 import resources.lib.common as common
 import resources.lib.kodi.library_utils as lib_utils
 from resources.lib.globals import G
@@ -30,7 +28,8 @@ def generate_context_menu_profile(profile_guid, is_autoselect, is_library_playba
                   {'profile_guid': profile_guid}),
         _ctx_item('library_playback_remove_profile' if is_library_playback else 'library_playback_set_profile',
                   None,
-                  {'profile_guid': profile_guid})
+                  {'profile_guid': profile_guid}),
+        _ctx_item('profile_parental_control', None, {'profile_guid': profile_guid})
     ]
     return items
 

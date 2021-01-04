@@ -7,22 +7,21 @@
     SPDX-License-Identifier: MIT
     See LICENSES/MIT.md for more information.
 """
-from __future__ import absolute_import, division, unicode_literals
-
 import time
 from datetime import datetime, timedelta
-from future.utils import raise_from
 
-import resources.lib.utils.website as website
+import xbmc
+
 import resources.lib.common as common
+import resources.lib.utils.website as website
+from resources.lib.common import cache_utils
 from resources.lib.common.exceptions import (NotLoggedInError, MissingCredentialsError, WebsiteParsingError,
                                              MbrStatusAnonymousError, MetadataNotAvailable, LoginValidateError,
                                              HttpError401, InvalidProfilesError)
-from resources.lib.common import cache_utils
-from resources.lib.utils import cookies
 from resources.lib.globals import G
 from resources.lib.kodi import ui
 from resources.lib.services.nfsession.session.path_requests import SessionPathRequests
+from resources.lib.utils import cookies
 from resources.lib.utils.logging import LOG, measure_exec_time_decorator
 
 
@@ -30,7 +29,7 @@ class NFSessionOperations(SessionPathRequests):
     """Provides methods to perform operations within the Netflix session"""
 
     def __init__(self):
-        super(NFSessionOperations, self).__init__()
+        super().__init__()
         # Slot allocation for IPC
         self.slots = [
             self.get_safe,
@@ -42,6 +41,7 @@ class NFSessionOperations(SessionPathRequests):
             self.perpetual_path_request,
             self.callpath_request,
             self.fetch_initial_page,
+            self.refresh_session_data,
             self.activate_profile,
             self.parental_control_data,
             self.get_metadata,
@@ -78,15 +78,18 @@ class NFSessionOperations(SessionPathRequests):
         LOG.debug('Fetch initial page')
         from requests import exceptions
         try:
-            response = self.get_safe('browse')
-            api_data = self.website_extract_session_data(response, update_profiles=True)
-            self.auth_url = api_data['auth_url']
+            self.refresh_session_data(True)
         except exceptions.TooManyRedirects:
             # This error can happen when the profile used in nf session actually no longer exists,
             # something wrong happen in the session then the server try redirect to the login page without success.
             # (CastagnaIT: i don't know the best way to handle this borderline case, but login again works)
             self.session.cookies.clear()
             self.login()
+
+    def refresh_session_data(self, update_profiles):
+        response = self.get_safe('browse')
+        api_data = self.website_extract_session_data(response, update_profiles=update_profiles)
+        self.auth_url = api_data['auth_url']
 
     @measure_exec_time_decorator(is_immediate=True)
     def activate_profile(self, guid):
@@ -96,6 +99,10 @@ class NFSessionOperations(SessionPathRequests):
         if guid == current_active_guid:
             LOG.info('The profile guid {} is already set, activation not needed.', guid)
             return
+        if xbmc.Player().isPlayingVideo():
+            # Change the current profile while a video is playing can cause problems with outgoing HTTP requests
+            # (MSL/NFSession) causing a failure in the HTTP request or sending data on the wrong profile
+            raise Warning('It is not possible select a profile while a video is playing.')
         timestamp = time.time()
         LOG.info('Activating profile {}', guid)
         # 20/05/2020 - The method 1 not more working for switching PIN locked profiles
@@ -111,8 +118,7 @@ class NFSessionOperations(SessionPathRequests):
                                   'authURL': self.auth_url})
         except HttpError401 as exc:
             # Profile guid not more valid
-            raise_from(InvalidProfilesError('Unable to access to the selected profile.'),
-                       exc)
+            raise InvalidProfilesError('Unable to access to the selected profile.') from exc
         # Retrieve browse page to update authURL
         response = self.get_safe('browse')
         self.auth_url = website.extract_session_data(response)['auth_url']
@@ -122,14 +128,13 @@ class NFSessionOperations(SessionPathRequests):
         G.CACHE_MANAGEMENT.identifier_prefix = guid
         cookies.save(self.session.cookies)
 
-    def parental_control_data(self, password):
+    def parental_control_data(self, guid, password):
         # Ask to the service if password is right and get the PIN status
         from requests import exceptions
-        profile_guid = G.LOCAL_DB.get_active_profile_guid()
         try:
             response = self.post_safe('profile_hub',
                                       data={'destination': 'contentRestrictions',
-                                            'guid': profile_guid,
+                                            'guid': guid,
                                             'password': password,
                                             'task': 'auth'})
             if response.get('status') != 'ok':
@@ -138,13 +143,13 @@ class NFSessionOperations(SessionPathRequests):
         except exceptions.HTTPError as exc:
             if exc.response.status_code == 500:
                 # This endpoint raise HTTP error 500 when the password is wrong
-                raise_from(MissingCredentialsError, exc)
+                raise MissingCredentialsError from exc
             raise
         # Warning - parental control levels vary by country or region, no fixed values can be used
         # Note: The language of descriptions change in base of the language of selected profile
         response_content = self.get_safe('restrictions',
                                          data={'password': password},
-                                         append_to_address=profile_guid)
+                                         append_to_address=guid)
         extracted_content = website.extract_parental_control_data(response_content, response['maturity'])
         response['profileInfo']['profileName'] = website.parse_html(response['profileInfo']['profileName'])
         extracted_content['data'] = response
@@ -162,7 +167,7 @@ class NFSessionOperations(SessionPathRequests):
             common.purge_credentials()
             self.session.cookies.clear()
             common.send_signal(signal=common.Signals.CLEAR_USER_ID_TOKENS)
-            raise_from(NotLoggedInError, exc)
+            raise NotLoggedInError from exc
 
     @measure_exec_time_decorator(is_immediate=True)
     def get_metadata(self, videoid, refresh=False):
@@ -186,7 +191,7 @@ class NFSessionOperations(SessionPathRequests):
                 except KeyError as exc:
                     # The new metadata does not contain the episode
                     LOG.error('Episode metadata not found, find_episode_metadata raised an error: {}', exc)
-                    raise_from(MetadataNotAvailable, exc)
+                    raise MetadataNotAvailable from exc
         else:
             metadata_data = self._metadata(video_id=parent_videoid), None
         return metadata_data

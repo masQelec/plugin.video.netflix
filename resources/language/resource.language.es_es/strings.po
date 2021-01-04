@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: plugin.video.netflix\n"
 "Report-Msgid-Bugs-To: https://github.com/CastagnaIT/plugin.video.netflix\n"
-"POT-Creation-Date: 2017-07-24 16:15+0000\n"
+"POT-Creation-Date: 2017-11-12 00:00+0000\n"
 "PO-Revision-Date: 2020-04-13 18:45+0001\n"
 "Last-Translator: roliverosc\n"
 "Language-Team: Spanish\n"
@@ -65,7 +65,15 @@ msgctxt "#30010"
 msgid "Lists of all kinds"
 msgstr "Listas de todos los tipos"
 
-# Unused 30011, 30012, 30013
+# Unused 30011
+msgctxt "#30012"
+msgid "Profiles options and parental control"
+msgstr "Opciones perfiles y control parental"
+
+msgctxt "#30013"
+msgid "In the profile list, open the context menu in the chosen profile"
+msgstr "En la lista de perfiles, abra el menú contextual en el perfil elegido"
+
 msgctxt "#30014"
 msgid "Account"
 msgstr "Cuenta"
@@ -74,10 +82,7 @@ msgctxt "#30015"
 msgid "Other options"
 msgstr "Otras opciones"
 
-msgctxt "#30016"
-msgid "ESN"
-msgstr "ESN"
-
+# Unused 30016
 msgctxt "#30017"
 msgid "Logout"
 msgstr "Cerrar sesión"
@@ -140,10 +145,7 @@ msgctxt "#30033"
 msgid "Enable Dolby Digital Plus (DDPlus HQ and Atmos on Premium)"
 msgstr "Habilitar Dolby Digital Plus (DDPlus HQ y Atmos en Premium)"
 
-msgctxt "#30034"
-msgid "Manual ESN"
-msgstr "ESN manual"
-
+# Unused 30034
 msgctxt "#30035"
 msgid "InputStream Adaptive settings..."
 msgstr "Configurar InputStream Adaptive..."
@@ -325,7 +327,7 @@ msgstr "Recordar preferencias de audio / subtítulos"
 
 msgctxt "#30083"
 msgid "Force the display of forced subtitles only with the audio language set"
-msgstr ""
+msgstr "Forzar la visualización de subtítulos forzados solo con el idioma de audio configurado"
 
 msgctxt "#30084"
 msgid "Cache objects TTL (minutes)"
@@ -449,7 +451,7 @@ msgstr "Cierre de sesión completado"
 
 msgctxt "#30114"
 msgid "Keep 'My list' and Kodi Library in sync"
-msgstr "Mantener Mi lista y la biblioteca de Kodi sincronizados"
+msgstr "Mantener 'Mi lista' y la biblioteca de Kodi sincronizados"
 
 msgctxt "#30115"
 msgid "Content Profiles"
@@ -469,7 +471,7 @@ msgstr "Error en la operación de la API: {}"
 
 msgctxt "#30119"
 msgid "'My list' operation successful"
-msgstr "Operación Mi lista completada"
+msgstr "Operación en 'Mi lista' completada correctamente"
 
 msgctxt "#30120"
 msgid "Cannot automatically remove a season from Kodi library, please do it manually"
@@ -481,7 +483,7 @@ msgstr "Sincronizar todo ahora"
 
 msgctxt "#30122"
 msgid "Sync 'My list' to Kodi library"
-msgstr "Sincronizar Mi lista con la biblioteca de Kodi"
+msgstr "Sincronizar 'Mi lista' con la biblioteca de Kodi"
 
 msgctxt "#30123"
 msgid "Do you want to continue?[CR]The full synchronization will delete all previously exported titles.[CR]If there are many titles this operation may take some time."
@@ -644,7 +646,7 @@ msgstr "Examina los contenidos audiodescritos."
 
 msgctxt "#30165"
 msgid "View for 'My list'"
-msgstr "Vista para Mi lista"
+msgstr "Vista para 'Mi lista'"
 
 msgctxt "#30166"
 msgid "Main menu items"
@@ -708,7 +710,7 @@ msgstr "Ha habido un problema con el inicio de sesión, es posible que su cuenta
 
 msgctxt "#30181"
 msgid "Always show the subtitles when the preferred audio language is not available"
-msgstr ""
+msgstr "Mostrar siempre los subtítulos cuando el idioma de audio preferido no esté disponible"
 
 msgctxt "#30182"
 msgid "Export NFO files"
@@ -841,20 +843,9 @@ msgstr "Forzar actualización"
 
 msgctxt "#30215"
 msgid "Color of the titles included in 'My list'"
-msgstr "Color para títulos incluidos en Mi lista"
+msgstr "Color para títulos incluidos en 'Mi lista'"
 
-msgctxt "#30216"
-msgid "Show ESN in use"
-msgstr "Mostrar ESN en uso"
-
-msgctxt "#30217"
-msgid "Reset ESN"
-msgstr "Restablecer ESN"
-
-msgctxt "#30218"
-msgid "Are you sure you want to reset the ESN?[CR]If you confirm, wait until you receive the login message."
-msgstr "¿Estás seguro de que deseas restablecer el ESN?[CR]Si continúas, espera hasta que recibas el mensaje de inicio de sesión."
-
+# Unused 30216 to 30218
 msgctxt "#30219"
 msgid "Disable notification for synchronization completed"
 msgstr "Deshabilitar notificación para sincronización completada"
@@ -886,7 +877,7 @@ msgstr "Programada"
 
 msgctxt "#30227"
 msgid "Synchronize Kodi library with 'My list'"
-msgstr "Sincronizar la biblioteca de Kodi con Mi Lista"
+msgstr "Sincronizar la biblioteca de Kodi con 'Mi Lista'"
 
 msgctxt "#30228"
 msgid "Set a profile for synchronization"
@@ -949,10 +940,7 @@ msgctxt "#30243"
 msgid "Select first unwatched TV show episode"
 msgstr "Seleccionar el primer episodio de serie TV no visto"
 
-msgctxt "#30244"
-msgid "Force Widevine security level L3"
-msgstr "Forzar nivel de seguridad Widevine L3"
-
+# Unused 30244
 msgctxt "#30245"
 msgid "Deleting files exported to the library"
 msgstr "Eliminando archivos exportados a la biblioteca"
@@ -1056,8 +1044,49 @@ msgstr "Por ID de género/subgénero"
 # Unused 30414 to 30499
 msgctxt "#30500"
 msgid "Prefer the audio/subtitle language with country code (if available)"
-msgstr ""
+msgstr "Preferir el idioma de audio/subtítulos con código de país (si está disponible)"
 
 msgctxt "#30501"
 msgid "Prefer stereo audio tracks by default"
-msgstr ""
+msgstr "Preferir pistas de audio estéreo por defecto"
+
+# Unused 30502 to 30599
+msgctxt "#30600"
+msgid "ESN / Widevine settings"
+msgstr "Ajustes ESN / Widevine"
+
+msgctxt "#30601"
+msgid "ESN:"
+msgstr "ESN:"
+
+msgctxt "#30602"
+msgid "Change ESN"
+msgstr "Cambiar ESN:"
+
+msgctxt "#30603"
+msgid "Save system info"
+msgstr "Guardar info del sistema"
+
+msgctxt "#30604"
+msgid "Widevine - Force security level"
+msgstr "Widevine - Forzar nivel de seguridad"
+
+msgctxt "#30605"
+msgid "Force {}"
+msgstr "Forzar {}"
+
+msgctxt "#30606"
+msgid "ESN set successfully[CR]Try to play a video"
+msgstr "ESN configurado correctamente[CR]Intente reproducir un vídeo"
+
+msgctxt "#30607"
+msgid "This ESN cannot be used[CR]Try change ESN or reset ESN.[CR][CR]Error details:[CR]{}"
+msgstr "Este ESN no se puede utilizar[CR]Intente cambiar ESN o restablecer ESN.[CR][CR]Detalles del error:[CR]{}"
+
+msgctxt "#30608"
+msgid "Wrong ESN format"
+msgstr "Formato de ESN incorrecto"
+
+msgctxt "#30609"
+msgid "Do you want to reset all settings?"
+msgstr "¿Quieres restablecer todos los ajustes?"

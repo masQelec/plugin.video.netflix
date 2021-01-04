@@ -7,17 +7,15 @@
     SPDX-License-Identifier: MIT
     See LICENSES/MIT.md for more information.
 """
-from __future__ import absolute_import, division, unicode_literals
-
 import base64
 import json
-from future.utils import raise_from
 
 import xbmcdrm
 
 from resources.lib.common.exceptions import MSLError
 from resources.lib.database.db_utils import TABLE_SESSION
 from resources.lib.globals import G
+from resources.lib.utils.esn import WidevineForceSecLev
 from resources.lib.utils.logging import LOG
 from .base_crypto import MSLBaseCrypto
 
@@ -25,7 +23,7 @@ from .base_crypto import MSLBaseCrypto
 class AndroidMSLCrypto(MSLBaseCrypto):
     """Crypto handler for Android platforms"""
     def __init__(self):
-        super(AndroidMSLCrypto, self).__init__()
+        super().__init__()
         self.crypto_session = None
         self.keyset_id = None
         self.key_id = None
@@ -36,9 +34,8 @@ class AndroidMSLCrypto(MSLBaseCrypto):
             LOG.debug('Widevine CryptoSession successful constructed')
         except Exception as exc:  # pylint: disable=broad-except
             import traceback
-            LOG.error(G.py2_decode(traceback.format_exc(), 'latin-1'))
-            raise_from(MSLError('Failed to construct Widevine CryptoSession'),
-                       exc)
+            LOG.error(traceback.format_exc())
+            raise MSLError('Failed to construct Widevine CryptoSession') from exc
 
         drm_info = {
             'version': self.crypto_session.GetPropertyString('version'),
@@ -66,8 +63,11 @@ class AndroidMSLCrypto(MSLBaseCrypto):
         else:
             LOG.warn('Widevine CryptoSession system id not obtained!')
         LOG.debug('Widevine CryptoSession security level: {}', drm_info['security_level'])
-        if G.ADDON.getSettingBool('force_widevine_l3'):
-            LOG.warn('Widevine security level is forced to L3 by user settings!')
+        wv_force_sec_lev = G.LOCAL_DB.get_value('widevine_force_seclev',
+                                                WidevineForceSecLev.DISABLED,
+                                                table=TABLE_SESSION)
+        if wv_force_sec_lev != WidevineForceSecLev.DISABLED:
+            LOG.warn('Widevine security level is forced to {} by user settings!'.format(wv_force_sec_lev))
         LOG.debug('Widevine CryptoSession current hdcp level: {}', drm_info['hdcp_level'])
         LOG.debug('Widevine CryptoSession max hdcp level supported: {}', drm_info['hdcp_level_max'])
         LOG.debug('Widevine CryptoSession algorithms: {}', self.crypto_session.GetPropertyString('algorithms'))

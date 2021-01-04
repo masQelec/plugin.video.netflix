@@ -7,8 +7,6 @@
     SPDX-License-Identifier: MIT
     See LICENSES/MIT.md for more information.
 """
-from __future__ import absolute_import, division, unicode_literals
-
 import xbmc
 
 import resources.lib.common as common
@@ -27,7 +25,7 @@ class AMSectionSkipper(ActionManager):
     SETTING_ID = 'SectionSkipper_enabled'
 
     def __init__(self):
-        super(AMSectionSkipper, self).__init__()
+        super().__init__()
         self.markers = {}
         self.auto_skip = False
         self.pause_on_skip = False
@@ -76,13 +74,9 @@ class AMSectionSkipper(ActionManager):
         LOG.debug('Asking to skip {}', section)
         dialog_duration = (self.markers[section]['end'] -
                            self.markers[section]['start'])
-        ui.show_modal_dialog(True,
-                             ui.xmldialogs.Skip,
-                             "plugin-video-netflix-Skip.xml",
-                             G.ADDON.getAddonInfo('path'),
-                             seconds=dialog_duration,
-                             skip_to=self.markers[section]['end'],
-                             label=common.get_local_string(SKIPPABLE_SECTIONS[section]))
+        ui.show_skip_dialog(dialog_duration,
+                            seek_time=self.markers[section]['end'],
+                            label=common.get_local_string(SKIPPABLE_SECTIONS[section]))
 
     def on_playback_stopped(self, player_state):
         # Close any dialog remaining open

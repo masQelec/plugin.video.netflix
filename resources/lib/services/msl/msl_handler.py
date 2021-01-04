@@ -7,8 +7,6 @@
     SPDX-License-Identifier: MIT
     See LICENSES/MIT.md for more information.
 """
-from __future__ import absolute_import, division, unicode_literals
-
 import json
 import time
 
@@ -16,10 +14,10 @@ import xbmcaddon
 
 import resources.lib.common as common
 from resources.lib.common.cache_utils import CACHE_MANIFESTS
+from resources.lib.common.exceptions import CacheMiss, MSLError
 from resources.lib.database.db_utils import TABLE_SESSION
 from resources.lib.globals import G
-from resources.lib.utils.esn import get_esn
-from resources.lib.common.exceptions import CacheMiss, MSLError
+from resources.lib.utils.esn import get_esn, set_esn
 from resources.lib.utils.logging import LOG, measure_exec_time_decorator
 from .converter import convert_to_dash
 from .events_handler import EventsHandler
@@ -27,14 +25,10 @@ from .msl_requests import MSLRequests
 from .msl_utils import ENDPOINTS, display_error_info, MSL_DATA_FILENAME, create_req_params
 from .profiles import enabled_profiles
 
-try:  # Python 2
-    unicode
-except NameError:  # Python 3
-    unicode = str  # pylint: disable=redefined-builtin
 
-
-class MSLHandler(object):
+class MSLHandler:
     """Handles session management and crypto for license, manifest and event requests"""
+    http_ipc_slots = {}
     last_license_url = ''
     licenses_session_id = []
     licenses_xid = []
@@ -69,12 +63,8 @@ class MSLHandler(object):
                           'BT0OOLkk0fQ6a1LSqA49eN3RufKYq4LT+G+ffdgoDmKpIWS3bp7xQ6GeYtDAUh0D8Ipwc8aKzP2')
 
     def __init__(self):
-        super(MSLHandler, self).__init__()
         self._events_handler_thread = None
         self._init_msl_handler()
-        common.register_slot(
-            signal=common.Signals.ESN_CHANGED,
-            callback=self.msl_requests.perform_key_handshake)
         common.register_slot(
             signal=common.Signals.RELEASE_LICENSE,
             callback=self.release_license)
@@ -87,6 +77,11 @@ class MSLHandler(object):
         common.register_slot(
             signal=common.Signals.SWITCH_EVENTS_HANDLER,
             callback=self.switch_events_handler)
+        # Register slot perform_key_handshake to IPC
+        func_name = self.msl_requests.perform_key_handshake.__name__
+        enveloped_func = common.EnvelopeIPCReturnCall(self.msl_requests.perform_key_handshake).call
+        self.http_ipc_slots[func_name] = enveloped_func  # HTTP IPC (http_server.py)
+        common.register_slot(enveloped_func, func_name)  # AddonSignals IPC
 
     def _init_msl_handler(self):
         self.msl_requests = None
@@ -127,9 +122,13 @@ class MSLHandler(object):
         :return: MPD XML Manifest or False if no success
         """
         try:
-            manifest = self._load_manifest(viewable_id, get_esn())
+            esn = get_esn()
+            # When the add-on is installed from scratch or you logout the account the ESN will be empty
+            if not esn:
+                esn = set_esn()
+            manifest = self._load_manifest(viewable_id, esn)
         except MSLError as exc:
-            if 'Email or password is incorrect' in G.py2_decode(str(exc)):
+            if 'Email or password is incorrect' in str(exc):
                 # Known cases when MSL error "Email or password is incorrect." can happen:
                 # - If user change the password when the nf session was still active
                 # - Netflix has reset the password for suspicious activity when the nf session was still active
@@ -141,7 +140,7 @@ class MSLHandler(object):
 
     @measure_exec_time_decorator(is_immediate=True)
     def _load_manifest(self, viewable_id, esn):
-        cache_identifier = esn + '_' + unicode(viewable_id)
+        cache_identifier = esn + '_' + str(viewable_id)
         try:
             # The manifest must be requested once and maintained for its entire duration
             manifest = G.CACHE.get(CACHE_MANIFESTS, cache_identifier)
@@ -171,7 +170,7 @@ class MSLHandler(object):
 
         LOG.info('Requesting manifest for {} with ESN {} and HDCP {}',
                  viewable_id,
-                 common.censure(esn) if G.ADDON.getSetting('esn') else esn,
+                 common.censure(esn) if len(esn) > 50 else esn,
                  hdcp_version)
 
         profiles = enabled_profiles()
@@ -200,7 +199,7 @@ class MSLHandler(object):
             'supportsUnequalizedDownloadables': True,
             'showAllSubDubTracks': False,
             'titleSpecificData': {
-                unicode(viewable_id): {
+                str(viewable_id): {
                     'unletterboxed': True
                 }
             },
@@ -258,11 +257,19 @@ class MSLHandler(object):
         }]
         self.manifest_challenge = challenge
         endpoint_url = ENDPOINTS['license'] + create_req_params(0, 'prefetch/license')
-        response = self.msl_requests.chunked_request(endpoint_url,
-                                                     self.msl_requests.build_request_data(self.last_license_url,
-                                                                                          params,
-                                                                                          'drmSessionId'),
-                                                     get_esn())
+        try:
+            response = self.msl_requests.chunked_request(endpoint_url,
+                                                         self.msl_requests.build_request_data(self.last_license_url,
+                                                                                              params,
+                                                                                              'drmSessionId'),
+                                                         get_esn())
+        except MSLError as exc:
+            if exc.err_number == '1044' and common.get_system_platform() == 'android':
+                msg = ('This title is not available to watch instantly. Please try another title.\r\n'
+                       'To try to solve this problem you can force "Widevine L3" from the add-on Expert settings.\r\n'
+                       'More info in the Wiki FAQ on add-on GitHub.')
+                raise MSLError(msg) from exc
+            raise
         # This xid must be used also for each future Event request, until playback stops
         G.LOCAL_DB.set_value('xid', xid, TABLE_SESSION)
 

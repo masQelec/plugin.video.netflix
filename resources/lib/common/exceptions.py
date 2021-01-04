@@ -7,7 +7,6 @@
     SPDX-License-Identifier: MIT
     See LICENSES/MIT.md for more information.
 """
-from __future__ import absolute_import, division, unicode_literals
 # Note: This module is also used to dynamically raise exceptions for IPC (see _raise_for_error in ipc.py)
 
 
@@ -61,6 +60,10 @@ class MetadataNotAvailable(Exception):
 
 class MSLError(Exception):
     """A specific MSL error"""
+    def __init__(self, message, err_number=None):
+        self.message = message
+        self.err_number = err_number
+        super().__init__(self.message)
 
 
 class LicenseError(MSLError):
@@ -129,6 +132,10 @@ class DBMySQLError(Exception):
 
 class DBProfilesMissing(Exception):
     """There are no stored profiles in database"""
+
+
+class DBRecordNotExistError(Exception):
+    """The record do not exist in database"""
 
 
 # All other exceptions

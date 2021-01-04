@@ -37,7 +37,6 @@ msgid "Enter PIN to watch restricted content"
 msgstr "Wprowadź PIN żeby oglądać zabezpieczoną zawartość"
 
 # Unused 30003
-
 msgctxt "#30004"
 msgid "Password"
 msgstr "Hasło"
@@ -66,7 +65,14 @@ msgctxt "#30010"
 msgid "Lists of all kinds"
 msgstr "Wszystkie listy"
 
-# Unused 30011, 30012, 30013
+# Unused 30011
+msgctxt "#30012"
+msgid "Profiles options and parental control"
+msgstr ""
+
+msgctxt "#30013"
+msgid "In the profile list, open the context menu in the chosen profile"
+msgstr ""
 
 msgctxt "#30014"
 msgid "Account"
@@ -76,10 +82,7 @@ msgctxt "#30015"
 msgid "Other options"
 msgstr "Pozostałe opcje"
 
-msgctxt "#30016"
-msgid "ESN"
-msgstr "ESN"
-
+# Unused 30016
 msgctxt "#30017"
 msgid "Logout"
 msgstr "Wyloguj"
@@ -129,7 +132,6 @@ msgid "Playback error"
 msgstr "Błąd odtwarzania"
 
 # Unused 30029
-
 msgctxt "#30030"
 msgid "Remove from library"
 msgstr "Usuń z biblioteki"
@@ -139,21 +141,16 @@ msgid "General"
 msgstr "Ogólne"
 
 # Unused 30032
-
 msgctxt "#30033"
 msgid "Enable Dolby Digital Plus (DDPlus HQ and Atmos on Premium)"
 msgstr "Aktywuj Dolby Digital Plus (DDPlus HQ i Atmos na Premium)"
 
-msgctxt "#30034"
-msgid "Manual ESN"
-msgstr "Własny ESN"
-
+# Unused 30034
 msgctxt "#30035"
 msgid "InputStream Adaptive settings..."
 msgstr "Ustawienia wtyczki strumieniowej..."
 
 # Unused 30036
-
 msgctxt "#30037"
 msgid "Views"
 msgstr "Widoki"
@@ -207,7 +204,6 @@ msgid "Library"
 msgstr "Bibilioteka"
 
 # Unused 30050
-
 msgctxt "#30051"
 msgid "Profile set for playback from the library"
 msgstr "Profil ustawiony do odtwarzania z biblioteki"
@@ -233,7 +229,6 @@ msgid "Remove auto-selection"
 msgstr "Usuń automatczyny wybór profilu"
 
 # Unused 30057, 30058
-
 msgctxt "#30059"
 msgid "Be careful, you are about to update many titles {}.[CR]This may cause service problems or temporary ban of the account.[CR]Do you want to continue?"
 msgstr "Uważaj, masz zamiar zaktualizować wiele tytułów {}.[CR]Może to spowodować problemy z usługą lub tymczasową blokadę konta.[CR]Czy chcesz kontynuować?"
@@ -519,7 +514,6 @@ msgid "Enable Up Next integration"
 msgstr "Włącz integrację z Up Next"
 
 # Unused 30130
-
 msgctxt "#30131"
 msgid "Check the logfile for detailed information"
 msgstr "Sprawdź plik dziennika, aby uzyskać szczegółowe informacje"
@@ -541,7 +535,6 @@ msgid "Cache cleared"
 msgstr "Pamięć podręczna wyczyszczona"
 
 # Unused 30136
-
 msgctxt "#30137"
 msgid "Enable VP9 profiles (disable if it causes artifacts)"
 msgstr "Włącz profile VP9 (wyłącz jeśli powoduje artefakty)"
@@ -619,7 +612,6 @@ msgid "Do you have a Netflix Premium account?"
 msgstr "Czy masz konto Netflix Premium?"
 
 # Unused 30156
-
 msgctxt "#30157"
 msgid "The configuration has been completed"
 msgstr "Konfiguracja została zakończona"
@@ -757,7 +749,6 @@ msgid "TV show"
 msgstr "serial"
 
 # Unused 30191
-
 msgctxt "#30192"
 msgid "[CR]These files are used by the provider information scrapers to integrate movies and TV shows info, useful with bonus episodes or director's cut"
 msgstr "[CR]Pliki te są wykorzystywane przez scrapery informacji do integracji informacji o filmach i serialach, wraz z dodatkowymi odcinkami lub wersjami reżyserskimi"
@@ -854,18 +845,7 @@ msgctxt "#30215"
 msgid "Color of the titles included in 'My list'"
 msgstr "Podświetl tytuły znajdujące się na Mojej liście kolorem"
 
-msgctxt "#30216"
-msgid "Show ESN in use"
-msgstr "Pokaż używany ESN"
-
-msgctxt "#30217"
-msgid "Reset ESN"
-msgstr "Resetuj ESN"
-
-msgctxt "#30218"
-msgid "Are you sure you want to reset the ESN?[CR]If you confirm, wait until you receive the login message."
-msgstr "Czy na pewno chcesz zresetować ESN?[CR]Jeśli potwierdzisz, poczekaj, aż pojawi się komunikat logowania."
-
+# Unused 30216 to 30218
 msgctxt "#30219"
 msgid "Disable notification for synchronization completed"
 msgstr "Wyłącz powiadomienie o zakończeniu synchronizacji"
@@ -883,7 +863,6 @@ msgid "Kid account"
 msgstr "Profil dziecka"
 
 # Unused 30223
-
 msgctxt "#30224"
 msgid "Auto update mode"
 msgstr "Tryb automatycznej aktualizacji"
@@ -905,7 +884,6 @@ msgid "Set a profile for synchronization"
 msgstr "Ustaw profil dla synchronizacji"
 
 # Unused 30229
-
 msgctxt "#30230"
 msgid "Check for updates now"
 msgstr "Sprawdź aktualizacje teraz"
@@ -962,10 +940,7 @@ msgctxt "#30243"
 msgid "Select first unwatched TV show episode"
 msgstr "Wybierz pierwszy nieoglądany odcinek serialu"
 
-msgctxt "#30244"
-msgid "Force Widevine security level L3"
-msgstr "Wymuś poziom zabezpieczeń Widevine L3"
-
+# Unused 30244
 msgctxt "#30245"
 msgid "Deleting files exported to the library"
 msgstr "Usuwanie plików wyeksportowanych do biblioteki"
@@ -979,7 +954,6 @@ msgid "Results per page (in case of timeout error decrease it)"
 msgstr "Wyników na stronę (w przypadku przekroczenia limitu czasu zmniejsz go)"
 
 # Unused 30248 to 30299
-
 msgctxt "#30300"
 msgid "Do you want to remove watched status of '{}'?[CR][CR]The operation could take up to 24h, therefore the title may still appear in the list."
 msgstr "Czy chcesz usunąć status oglądania '{}'?[CR][CR]Operacja może zająć do 24 godzin, dlatego tytuł może nadal pojawiać się na liście."
@@ -989,7 +963,6 @@ msgid "Include Kodi library (only sending data)"
 msgstr "Uwzględnij bibliotekę Kodi (tylko wysyłanie danych)"
 
 # Unused 30302 to 30339
-
 msgctxt "#30340"
 msgid "Choose the login method[CR](if the login with E-Mail/Password always returns \"incorrect password\", then use Authentication key, instructions in the GitHub ReadMe)"
 msgstr "Wybierz metodę logowania[CR](jeśli logowanie przy użyciu adresu e-mail/hasła zawsze zwraca \"nieprawidłowe hasło\", użyj klucza uwierzytelniania, instrukcje w pliku ReadMe GitHub)"
@@ -1015,7 +988,6 @@ msgid "Enter PIN"
 msgstr "Podaj PIN"
 
 # Unused 30346 to 30398
-
 msgctxt "#30399"
 msgid "Sort history by"
 msgstr "Sortuj historię według"
@@ -1053,7 +1025,6 @@ msgid "No matches found"
 msgstr "Brak pasujących wyników"
 
 # Unused 30408, 30409
-
 msgctxt "#30410"
 msgid "By term"
 msgstr "Wg. słowa"
@@ -1071,7 +1042,6 @@ msgid "By genre/subgenre ID"
 msgstr "Wg. ID gatunku/podgatunku"
 
 # Unused 30414 to 30499
-
 msgctxt "#30500"
 msgid "Prefer the audio/subtitle language with country code (if available)"
 msgstr "Preferuj język dźwięku/napisów z kodem kraju (jeśli jest dostępny)"
@@ -1079,3 +1049,44 @@ msgstr "Preferuj język dźwięku/napisów z kodem kraju (jeśli jest dostępny)
 msgctxt "#30501"
 msgid "Prefer stereo audio tracks by default"
 msgstr "Domyślnie preferuj ścieżki audio stereo"
+
+# Unused 30502 to 30599
+msgctxt "#30600"
+msgid "ESN / Widevine settings"
+msgstr ""
+
+msgctxt "#30601"
+msgid "ESN:"
+msgstr ""
+
+msgctxt "#30602"
+msgid "Change ESN"
+msgstr ""
+
+msgctxt "#30603"
+msgid "Save system info"
+msgstr ""
+
+msgctxt "#30604"
+msgid "Widevine - Force security level"
+msgstr ""
+
+msgctxt "#30605"
+msgid "Force {}"
+msgstr ""
+
+msgctxt "#30606"
+msgid "ESN set successfully[CR]Try to play a video"
+msgstr ""
+
+msgctxt "#30607"
+msgid "This ESN cannot be used[CR]Try change ESN or reset ESN.[CR][CR]Error details:[CR]{}"
+msgstr ""
+
+msgctxt "#30608"
+msgid "Wrong ESN format"
+msgstr ""
+
+msgctxt "#30609"
+msgid "Do you want to reset all settings?"
+msgstr ""

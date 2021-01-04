@@ -7,21 +7,18 @@
     SPDX-License-Identifier: MIT
     See LICENSES/MIT.md for more information.
 """
-from __future__ import absolute_import, division, unicode_literals
 import uuid
 import xml.etree.ElementTree as ET
 
+import resources.lib.common as common
 from resources.lib.database.db_utils import TABLE_SESSION
 from resources.lib.globals import G
-import resources.lib.common as common
+from resources.lib.utils.esn import WidevineForceSecLev
 from resources.lib.utils.logging import LOG
 
 
 def convert_to_dash(manifest):
     """Convert a Netflix style manifest to MPEG-DASH manifest"""
-    from xbmcaddon import Addon
-    isa_version = G.remove_ver_suffix(G.py2_decode(Addon('inputstream.adaptive').getAddonInfo('version')))
-
     # If a CDN server has stability problems it may cause errors with streaming,
     # we allow users to select a different CDN server
     # (should be managed by ISA but is currently is not implemented)
@@ -45,16 +42,16 @@ def convert_to_dash(manifest):
 
     has_audio_drm_streams = manifest['audio_tracks'][0].get('hasDrmStreams', False)
 
-    default_audio_track_id = _get_default_audio_track_id(manifest)
+    id_default_audio_tracks = _get_id_default_audio_tracks(manifest)
     for audio_track in manifest['audio_tracks']:
-        is_default = default_audio_track_id == audio_track['id']
+        is_default = audio_track['id'] in id_default_audio_tracks
         _convert_audio_track(audio_track, period, init_length, is_default, has_audio_drm_streams, cdn_index)
 
     for text_track in manifest['timedtexttracks']:
         if text_track['isNoneTrack']:
             continue
         is_default = _is_default_subtitle(manifest, text_track)
-        _convert_text_track(text_track, period, is_default, cdn_index, isa_version)
+        _convert_text_track(text_track, period, is_default, cdn_index)
 
     xml = ET.tostring(root, encoding='utf-8', method='xml')
     if LOG.level == LOG.LEVEL_VERBOSE:
@@ -109,8 +106,11 @@ def _add_protection_info(adaptation_set, pssh, keyid):
             'value': 'widevine'
         })
     # Add child tags to the DRM system configuration ('widevine:license' is an ISA custom tag)
+    wv_force_sec_lev = G.LOCAL_DB.get_value('widevine_force_seclev',
+                                            WidevineForceSecLev.DISABLED,
+                                            table=TABLE_SESSION)
     if (G.LOCAL_DB.get_value('drm_security_level', '', table=TABLE_SESSION) == 'L1'
-            and not G.ADDON.getSettingBool('force_widevine_l3')):
+            and wv_force_sec_lev == WidevineForceSecLev.DISABLED):
         # The flag HW_SECURE_CODECS_REQUIRED is mandatory for L1 devices,
         # if it is set on L3 devices ISA already remove it automatically.
         # But some L1 devices with non regular Widevine library cause issues then need to be handled
@@ -245,18 +245,16 @@ def _convert_audio_downloadable(downloadable, adaptation_set, init_length, chann
     _add_segment_base(representation, init_length)
 
 
-def _convert_text_track(text_track, period, default, cdn_index, isa_version):
+def _convert_text_track(text_track, period, default, cdn_index):
     # Only one subtitle representation per adaptationset
     downloadable = text_track.get('ttDownloadables')
     if not text_track:
         return
-
     content_profile = list(downloadable)[0]
     is_ios8 = content_profile == 'webvtt-lssdh-ios8'
     impaired = 'true' if text_track['trackType'] == 'ASSISTIVE' else 'false'
     forced = 'true' if text_track['isForcedNarrative'] else 'false'
     default = 'true' if default else 'false'
-
     adaptation_set = ET.SubElement(
         period,  # Parent
         'AdaptationSet',  # Tag
@@ -268,21 +266,10 @@ def _convert_text_track(text_track, period, default, cdn_index, isa_version):
         adaptation_set,  # Parent
         'Role',  # Tag
         schemeIdUri='urn:mpeg:dash:role:2011')
-    # In the future version of InputStream Adaptive, you can set the stream parameters
-    # in the same way as the video stream
-    if common.is_less_version(isa_version, '2.4.3'):
-        # To be removed when the new version is released
-        if forced == 'true':
-            role.set('value', 'forced')
-        else:
-            if default == 'true':
-                role.set('value', 'main')
-    else:
-        adaptation_set.set('impaired', impaired)
-        adaptation_set.set('forced', forced)
-        adaptation_set.set('default', default)
-        role.set('value', 'subtitle')
-
+    adaptation_set.set('impaired', impaired)
+    adaptation_set.set('forced', forced)
+    adaptation_set.set('default', default)
+    role.set('value', 'subtitle')
     representation = ET.SubElement(
         adaptation_set,  # Parent
         'Representation',  # Tag
@@ -290,7 +277,7 @@ def _convert_text_track(text_track, period, default, cdn_index, isa_version):
     _add_base_url(representation, list(downloadable[content_profile]['downloadUrls'].values())[cdn_index])
 
 
-def _get_default_audio_track_id(manifest):
+def _get_id_default_audio_tracks(manifest):
     """Get the track id of the audio track to be set as default"""
     channels_stereo = ['1.0', '2.0']
     channels_multi = ['5.1', '7.1']
@@ -322,14 +309,20 @@ def _get_default_audio_track_id(manifest):
         audio_stream = _find_audio_stream(manifest, 'isNative', True, channels_multi)
     if not audio_stream:
         audio_stream = _find_audio_stream(manifest, 'isNative', True, channels_stereo)
-    return audio_stream.get('id')
+    # Try find the default track for impaired
+    imp_audio_stream = {}
+    if not is_prefer_stereo:
+        imp_audio_stream = _find_audio_stream(manifest, 'language', audio_language, channels_multi, True)
+    if not imp_audio_stream:
+        imp_audio_stream = _find_audio_stream(manifest, 'language', audio_language, channels_stereo, True)
+    return audio_stream.get('id'), imp_audio_stream.get('id')
 
 
-def _find_audio_stream(manifest, property_name, property_value, channels_list):
+def _find_audio_stream(manifest, property_name, property_value, channels_list, is_impaired=False):
     return next((audio_track for audio_track in manifest['audio_tracks']
                  if audio_track[property_name] == property_value
                  and audio_track['channels'] in channels_list
-                 and not audio_track['trackType'] == 'ASSISTIVE'), {})
+                 and (audio_track['trackType'] == 'ASSISTIVE') == is_impaired), {})
 
 
 def _is_default_subtitle(manifest, current_text_track):

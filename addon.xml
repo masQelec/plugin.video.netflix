@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.netflix" name="Netflix" version="1.11.0" provider-name="libdev + jojo + asciidisco + caphm + castagnait">
+<addon id="plugin.video.netflix" name="Netflix" version="1.13.0+matrix.1" provider-name="libdev + jojo + asciidisco + caphm + castagnait">
   <requires>
-    <import addon="xbmc.python" version="2.26.0"/>
-    <import addon="script.module.addon.signals" version="0.0.3"/>
-    <import addon="script.module.future" version="0.17.1"/>
-    <import addon="script.module.inputstreamhelper" version="0.3.3"/>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.addon.signals" version="0.0.6"/>
+    <import addon="script.module.inputstreamhelper" version="0.4.4"/>
     <import addon="script.module.pycryptodome" version="3.4.3"/>
-    <import addon="script.module.requests" version="2.12.4"/>
+    <import addon="script.module.requests" version="2.22.0"/>
+    <import addon="script.module.myconnpy" version="8.0.18"/> <!--MySQL Connector/Python-->
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
     <provides>video</provides>
   </extension>
   <extension point="xbmc.service" library="service.py"/>
-  <extension point="xbmc.python.module" library="packages/mysql-connector-python"/>
   <extension point="xbmc.addon.metadata">
     <reuselanguageinvoker>true</reuselanguageinvoker>
     <summary lang="cs_CZ">Netflix</summary>
@@ -68,6 +67,9 @@
     <summary lang="he_IL">Netflix</summary>
     <description lang="he_IL">תוסף VOD לשירות של Netflix</description>
     <disclaimer lang="he_IL">השימוש בתוסף זה עלול להיות לא חוקי במדינת מגוריך - אנא בדוק את החוק ברשות המקומית לפני ההתקנה</disclaimer>
+    <summary lang="zh_TW">Netflix</summary>
+    <description lang="zh_TW">Netflix VOD服務套件</description>
+    <disclaimer lang="zh_TW">在您居住的國家使用此套件可能並不合法 - 請在安裝前與您當地的法律核對</disclaimer>
 	<assets>
       <icon>resources/media/icon.png</icon>
       <fanart>resources/media/fanart.png</fanart>
@@ -85,20 +87,15 @@
     <forum>https://forum.kodi.tv/showthread.php?tid=329767</forum>
     <source>https://github.com/CastagnaIT/plugin.video.netflix</source>
     <news>
-v1.11.0 (2020-11-14)
-- Reworked Audio/Subtitles language features
-  - Add support to Kodi player audio setting "Media default" (use NF profile language)
-  - Add setting to force the display subtitles only with the audio language set
-  - Add setting to always show subtitles when the preferred audio language is not available (Kodi 19 only)
-  - Add setting to prefer audio/subtitles with country code (Kodi 19 only)
-  - Add setting to prefer stereo audio tracks (instead of multichannels)
-- Add check for video availability
-- Add support to NFAuthentication for MacOS
-- Add workaround to HTTP connection problem blocking the add-on service
-- Fixed wrong resume time after manual seek (when nf sync enabled)
-- Fixed login/addon open error due to json parsing error
-- Updated translations it, jp, kr, tr, gr, ro, fr, hu, pl, de, zh-cn, pt-br
-- Others minor fixes
+v1.13.0 (2021-01-02)
+- Add new ESN/Widevine setting dialog
+- MySQL Connector/Python library is now a Kodi dependency
+- Removed all Python 2 code / Kodi 18 compatibility
+- Fixed an issue that not allow to use same profile to play videos with UpNext
+- Disabled UpNext when play STRM of a shared path (Wiki: Share STRM library with multiple devices - OPTION 2)
+- Minor code fixes/improvements
+- Add Taiwan transation
+- Updated translations it, de, es, jp, kr, ro
     </news>
   </extension>
 </addon>

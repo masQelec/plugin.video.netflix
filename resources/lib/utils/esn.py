@@ -7,24 +7,79 @@
     SPDX-License-Identifier: MIT
     See LICENSES/MIT.md for more information.
 """
-from __future__ import absolute_import, division, unicode_literals
-
 from re import sub
 
-from resources.lib.common.device_utils import get_system_platform
 from resources.lib.database.db_utils import TABLE_SESSION
 from resources.lib.globals import G
 from .logging import LOG
 
 
+# 25/11/2020 - Follow Android ESN generator is changed (current method not yet known)
+# First NF identifies the device in this way and in the following order:
+# 1) if getPackageManager().hasSystemFeature("org.chromium.arc") == true
+#                 the device is : DEV_TYPE_CHROME_OS (Chrome OS)
+# 2) if getSystemService(Context.DISPLAY_SERVICE)).getDisplay(0) == null
+#                 the device is : DEV_TYPE_ANDROID_STB (Set-Top Box)
+# 3) if getSystemService(Context.UI_MODE_SERVICE)).getCurrentModeType() == UI_MODE_TYPE_TELEVISION
+#                 the device is : DEV_TYPE_ANDROID_TV
+# 4) if 528 is <= of (calculated resolution display):
+#    DisplayMetrics dMetr = new DisplayMetrics();
+#    defaultDisplay.getRealMetrics(displayMetrics);
+#    float disDens = displayMetrics.density;
+#    if 528 <= Math.min((dMetr.widthPixels / disDens, (dMetr.heightPixels / disDens)
+#                 the device is : DEV_TYPE_TABLET
+# 5) if all other cases are not suitable, then the device is :  DEV_TYPE_PHONE
+# Then after identifying the device type, a specific letter will be added after the prefix "PRV-"
+
+# ESN Device categories (updated 25/11/2020)
+#  Unknown or Phone "PRV-P"
+#  Tablet?          "PRV-T"   (should be for tablet)
+#  Tablet           "PRV-C"   (should be for Chrome OS devices only)
+#  Google TV        "PRV-B"   (Set-Top Box)
+#  Smart Display    "PRV-E"
+#  Android TV       "PRV-"    (without letter specified)
+
+
+class WidevineForceSecLev:  # pylint: disable=no-init, disable=too-few-public-methods
+    """The values accepted for 'widevine_force_seclev' TABLE_SESSION setting"""
+    DISABLED = 'Disabled'
+    L3 = 'L3'
+    L3_4445 = 'L3 (ID 4445)'
+
+
 def get_esn():
-    """Get the generated esn or if set get the custom esn"""
-    custom_esn = G.ADDON.getSetting('esn')
-    return custom_esn if custom_esn else G.LOCAL_DB.get_value('esn', '', table=TABLE_SESSION)
+    """Get the ESN currently in use"""
+    return G.LOCAL_DB.get_value('esn', '', table=TABLE_SESSION)
 
 
-def generate_android_esn():
+def set_esn(esn=None):
+    """
+    Set the ESN to be used
+    :param esn: if None the ESN will be generated or retrieved
+    :return: The ESN set
+    """
+    if not esn:
+        # Generate the ESN if we are on Android or get it from the website
+        esn = generate_android_esn() or get_website_esn()
+        if not esn:
+            raise Exception('It was not possible to obtain an ESN')
+    G.LOCAL_DB.set_value('esn', esn, TABLE_SESSION)
+    return esn
+
+
+def get_website_esn():
+    """Get the ESN set by the website"""
+    return G.LOCAL_DB.get_value('website_esn', table=TABLE_SESSION)
+
+
+def set_website_esn(esn):
+    """Save the ESN of the website"""
+    G.LOCAL_DB.set_value('website_esn', esn, TABLE_SESSION)
+
+
+def generate_android_esn(wv_force_sec_lev=None):
     """Generate an ESN if on android or return the one from user_data"""
+    from resources.lib.common.device_utils import get_system_platform
     if get_system_platform() == 'android':
         import subprocess
         try:
@@ -48,36 +103,16 @@ def generate_android_esn():
 
                 # Some device with false Widevine certification can be specified as Widevine L1
                 # but we do not know how NF original app force the fallback to L3, so we add a manual setting
-                is_l3_forced = bool(G.ADDON.getSettingBool('force_widevine_l3'))
-                if is_l3_forced:
+                if not wv_force_sec_lev:
+                    wv_force_sec_lev = G.LOCAL_DB.get_value('widevine_force_seclev',
+                                                            WidevineForceSecLev.DISABLED,
+                                                            table=TABLE_SESSION)
+                if wv_force_sec_lev == WidevineForceSecLev.L3:
                     drm_security_level = 'L3'
-                    # We do not know if override the DRM System ID to 4445 is a good behaviour for all devices,
-                    # but at least for Beelink GT-King (S922X) this is needed
+                elif wv_force_sec_lev == WidevineForceSecLev.L3_4445:
+                    # For some devices the Netflix android app change the DRM System ID to 4445
+                    drm_security_level = 'L3'
                     system_id = '4445'
-
-                # The original android ESN generator is not full replicable
-                # because we can not access easily to android APIs to get system data
-                # First NF identifies the device in this way and in the following order:
-                # 1) if getPackageManager().hasSystemFeature("org.chromium.arc") == true
-                #                 the device is : DEV_TYPE_CHROME_OS (Chrome OS)
-                # 2) if getSystemService(Context.DISPLAY_SERVICE)).getDisplay(0) == null
-                #                 the device is : DEV_TYPE_ANDROID_STB (Set-Top Box)
-                # 3) if getSystemService(Context.UI_MODE_SERVICE)).getCurrentModeType() == UI_MODE_TYPE_TELEVISION
-                #                 the device is : DEV_TYPE_ANDROID_TV
-                # 4) if 528 is <= of (calculated resolution display):
-                #    DisplayMetrics dMetr = new DisplayMetrics();
-                #    defaultDisplay.getRealMetrics(displayMetrics);
-                #    float disDens = displayMetrics.density;
-                #    if 528 <= Math.min((dMetr.widthPixels / disDens, (dMetr.heightPixels / disDens)
-                #                 the device is : DEV_TYPE_TABLET
-                # 5) if all other cases are not suitable, then the device is :  DEV_TYPE_PHONE
-
-                # Then after identifying the device type, a specific letter will be added after the prefix "PRV-":
-                #   DEV_TYPE_CHROME_OS      "PRV-C"
-                #   DEV_TYPE_ANDROID_STB    "PRV-B"
-                #   DEV_TYPE_ANDROID_TV     "PRV-" (no letter specified)
-                #   DEV_TYPE_TABLET         "PRV-T"
-                #   DEV_TYPE_PHONE          "PRV-P"
 
                 if drm_security_level == 'L1':
                     esn = 'NFANDROID2-PRV-'
@@ -94,7 +129,7 @@ def generate_android_esn():
                 esn = sub(r'[^A-Za-z0-9=-]', '=', esn)
                 if system_id:
                     esn += '-' + system_id + '-'
-                LOG.debug('Generated Android ESN: {} is L3 forced: {}', esn, is_l3_forced)
+                LOG.debug('Generated Android ESN: {} (widevine force sec.lev. set as "{}")', esn, wv_force_sec_lev)
                 return esn
         except OSError:
             pass

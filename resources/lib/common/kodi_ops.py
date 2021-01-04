@@ -7,9 +7,8 @@
     SPDX-License-Identifier: MIT
     See LICENSES/MIT.md for more information.
 """
-from __future__ import absolute_import, division, unicode_literals
-
 import json
+from contextlib import contextmanager
 
 import xbmc
 
@@ -90,6 +89,16 @@ def container_update(url, reset_history=False):
     xbmc.executebuiltin(func_str.format(url))
 
 
+@contextmanager
+def show_busy_dialog():
+    """Context to show the busy dialog on the screen"""
+    xbmc.executebuiltin('ActivateWindow(busydialognocancel)')
+    try:
+        yield
+    finally:
+        xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
+
+
 def get_local_string(string_id):
     """Retrieve a localized string by its id"""
     src = xbmc if string_id < 30000 else G.ADDON
@@ -116,7 +125,7 @@ def schedule_builtin(time, command, name='NetflixTask'):
 
 def play_media(media):
     """Play a media in Kodi"""
-    xbmc.executebuiltin(G.py2_encode('PlayMedia({})'.format(media)))
+    xbmc.executebuiltin('PlayMedia({})'.format(media))
 
 
 def stop_playback():
@@ -132,7 +141,7 @@ def get_current_kodi_profile_name(no_spaces=True):
     return get_current_kodi_profile_name.cached
 
 
-class _WndProps(object):  # pylint: disable=no-init
+class _WndProps:  # pylint: disable=no-init
     """Read and write a property to the Kodi home window"""
     # Default Properties keys
     SERVICE_STATUS = 'service_status'
@@ -140,6 +149,7 @@ class _WndProps(object):  # pylint: disable=no-init
     IS_CONTAINER_REFRESHED = 'is_container_refreshed'
     """Return 'True' when container_refresh in kodi_ops.py is used by context menus, etc."""
     CURRENT_DIRECTORY = 'current_directory'
+    CURRENT_DIRECTORY_MENU_ID = 'current_directory_menu_id'
     """
     Return the name of the currently loaded directory (so the method name of directory.py class), otherwise:
     ['']       When the add-on is in his first run instance, so startup page
@@ -151,15 +161,13 @@ class _WndProps(object):  # pylint: disable=no-init
     def __getitem__(self, key):
         try:
             # If you use multiple Kodi profiles you need to distinguish the property of current profile
-            return G.WND_KODI_HOME.getProperty(G.py2_encode('netflix_{}_{}'.format(get_current_kodi_profile_name(),
-                                                                                   key)))
+            return G.WND_KODI_HOME.getProperty('netflix_{}_{}'.format(get_current_kodi_profile_name(), key))
         except Exception:  # pylint: disable=broad-except
             return ''
 
     def __setitem__(self, key, newvalue):
         # If you use multiple Kodi profiles you need to distinguish the property of current profile
-        G.WND_KODI_HOME.setProperty(G.py2_encode('netflix_{}_{}'.format(get_current_kodi_profile_name(),
-                                                                        key)),
+        G.WND_KODI_HOME.setProperty('netflix_{}_{}'.format(get_current_kodi_profile_name(), key),
                                     newvalue)
 
 
@@ -190,7 +198,7 @@ def convert_language_iso(from_value, iso_format=xbmc.ISO_639_1):
     Convert given value (English name or two/three letter code) to the specified format
     :param iso_format: specify the iso format (two letter code ISO_639_1 or three letter code ISO_639_2)
     """
-    return xbmc.convertLanguage(G.py2_encode(from_value), iso_format)
+    return xbmc.convertLanguage(from_value, iso_format)
 
 
 def fix_locale_languages(data_list):
@@ -198,10 +206,11 @@ def fix_locale_languages(data_list):
     # Languages with the country code causes the display of wrong names in Kodi settings like
     # es-ES as 'Spanish-Spanish', pt-BR as 'Portuguese-Breton', nl-BE as 'Dutch-Belarusian', etc
     # and the impossibility to set them as the default audio/subtitle language
+    # Issue: https://github.com/xbmc/xbmc/issues/15308
     for item in data_list:
         if item.get('isNoneTrack', False):
             continue
-        if item['language'] == 'pt-BR' and not G.KODI_VERSION.is_less_version('18.7'):
+        if item['language'] == 'pt-BR':
             # Replace pt-BR with pb, is an unofficial ISO 639-1 Portuguese (Brazil) language code
             # has been added to Kodi 18.7 and Kodi 19.x PR: https://github.com/xbmc/xbmc/pull/17689
             item['language'] = 'pb'
@@ -214,7 +223,7 @@ def fix_locale_languages(data_list):
                 LOG.error('fix_locale_languages: missing mapping conversion for locale "{}"'.format(item['language']))
 
 
-class GetKodiVersion(object):
+class GetKodiVersion:
     """Get the kodi version, git date, stage name"""
     # Examples of some types of supported strings:
     # 10.1 Git:Unknown                       PRE-11.0 Git:Unknown                  11.0-BETA1 Git:20111222-22ad8e4
